@@ -1,22 +1,24 @@
 package physics2d;
 
-import math.Vector2f;
-import rigidbody.RigidBody;
+import org.joml.Vector2f;
+import physics2d.rigidbody.RigidBody;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class World {
-    public List<Object> entities = new ArrayList<>();
-    private static Vector2f gravity = new Vector2f(0, 9.8f);
+    public List<RigidBody> entities = new ArrayList<>();
+    private static Vector2f gravity = new Vector2f(0, -128f);
+    public static final Vector2f CENTER = new Vector2f(0, 0);
 
-    public void add(Object e) {
+
+    public void add(RigidBody e) {
         this.entities.add(e);
     }
 
     public void step(float dt) {
-        for (Object e : entities) {
-            if (e.getClass().equals(RigidBody.class)) ((RigidBody) e).update(dt);
+        for (RigidBody e : entities) {
+            e.update(dt);
         }
     }
 

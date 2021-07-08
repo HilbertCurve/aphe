@@ -1,8 +1,8 @@
-package math;
+package math.vector;
 
-public class Vector2f implements VectorXf {
-    public float x;
-    public float y;
+public class Vector2f extends VectorXf {
+    public float x, y;
+    public static final int length = 2;
 
     public Vector2f() {
         this.x = 0;

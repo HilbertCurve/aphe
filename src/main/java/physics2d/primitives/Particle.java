@@ -1,6 +1,7 @@
-package physics2d;
+package physics2d.primitives;
 
-import math.Vector2f;
+import org.joml.Vector2f;
+import physics2d.World;
 
 public class Particle {
     public Vector2f position;

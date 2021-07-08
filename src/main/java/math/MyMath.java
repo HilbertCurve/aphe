@@ -1,5 +1,6 @@
 package math;
 
+import org.joml.Vector2f;
 import sun.misc.Unsafe;
 
 import java.lang.reflect.Field;
