@@ -2,13 +2,61 @@ plugins {
     id 'java'
 }
 
-group 'org.example'
-version '1.0-SNAPSHOT'
+project.ext.lwjglVersion = "3.2.3"
+project.ext.jomlVersion = "1.10.1"
+project.ext.imguiVersion = '1.83.1'
+
+if (System.getProperty("os.name").contains("Linux")) {
+    def osArch = System.getProperty("os.arch")
+    project.ext.lwjglNatives = osArch.startsWith("arm") || osArch.startsWith("aarch64")
+            ? "natives-linux-${osArch.contains("64") || osArch.startsWith("armv8") ? "arm64" : "arm32"}"
+            : "natives-linux"
+    project.ext.imguiNatives = "natives-linux"
+} else if (System.getProperty("os.name").contains("Mac")) {
+    project.ext.lwjglNatives = "natives-macos"
+    project.ext.imguiNatives = "natives-macos"
+} else {
+    def osArch = System.getProperty("os.arch")
+    project.ext.lwjglNatives = osArch.contains("64")
+            ? "natives-windows${osArch.startsWith("aarch64") ? "-arm64" : ""}"
+            : "natives-windows-x86"
+    project.ext.imguiNatives = "natives-windows"
+}
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
+    implementation platform("org.lwjgl:lwjgl-bom:3.2.3")
+
+    // lwjgl
+    implementation "org.lwjgl:lwjgl"
+    implementation "org.lwjgl:lwjgl-assimp"
+    implementation "org.lwjgl:lwjgl-glfw"
+    implementation "org.lwjgl:lwjgl-openal"
+    implementation "org.lwjgl:lwjgl-opengl"
+    implementation "org.lwjgl:lwjgl-stb"
+
+    // imgui
+    implementation "io.github.spair:imgui-java-binding:$imguiVersion"
+    implementation "io.github.spair:imgui-java-lwjgl3:$imguiVersion"
+    implementation "io.github.spair:imgui-java-app:$imguiVersion"
+    implementation "io.github.spair:imgui-java-$imguiNatives:$imguiVersion"
+
+    // joml
+    implementation "org.joml:joml:${jomlVersion}"
+
+    // gson
     implementation 'com.google.code.gson:gson:2.8.7'
+    implementation 'org.junit.jupiter:junit-jupiter:5.7.0'
+
+    // natives
+    runtimeOnly "org.lwjgl:lwjgl::$lwjglNatives"
+    runtimeOnly "org.lwjgl:lwjgl-assimp::$lwjglNatives"
+    runtimeOnly "org.lwjgl:lwjgl-glfw::$lwjglNatives"
+    runtimeOnly "org.lwjgl:lwjgl-openal::$lwjglNatives"
+    runtimeOnly "org.lwjgl:lwjgl-opengl::$lwjglNatives"
+    runtimeOnly "org.lwjgl:lwjgl-stb::$lwjglNatives"
+    runtimeOnly "io.github.spair:imgui-java-binding:$imguiVersion"
 }
