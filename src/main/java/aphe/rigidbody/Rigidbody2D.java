@@ -1,10 +1,12 @@
 package aphe.rigidbody;
 
 import aphe.forces.Transform;
+import aphe.primitives.Collider2D;
 import org.joml.Vector2f;
 
 public class Rigidbody2D {
     private Transform rawTransform;
+    private Collider2D collider;
 
     private Vector2f position = new Vector2f();
     private float rotation = 0.0f;
@@ -16,8 +18,11 @@ public class Rigidbody2D {
     private float angularVelocity = 0.0f;
     private float linearDamping = 0.0f;
     private float angularDamping = 0.0f;
+    // Coefficient of restitution
+    private float cor = 1.0f;
 
     private boolean fixedRotation = false;
+    public static final float IMMOVABLE = 0.0f;
 
     public Rigidbody2D() {
 
@@ -41,8 +46,16 @@ public class Rigidbody2D {
         this.rotation = rotation;
     }
 
+    public Vector2f getVelocity() {
+        return linearVelocity;
+    }
+
+    public void setVelocity(Vector2f v) {
+        this.linearVelocity = v;
+    }
+
     public void physicsUpdate(float dt) {
-        if (this.mass == 0.0f) return;
+        if (this.mass == IMMOVABLE) return;
 
         // Calculate linear velocity
         Vector2f acceleration = new Vector2f(forceAccum).mul(this.inverseMass);
@@ -79,8 +92,12 @@ public class Rigidbody2D {
 
     public void setMass(float mass) {
         this.mass = mass;
-        if (this.mass != 0.0f)
+        if (this.mass != IMMOVABLE)
             this.inverseMass = 1.0f / this.mass;
+    }
+
+    public float getInverseMass() {
+        return inverseMass;
     }
 
     public void addForce(Vector2f v) {
@@ -90,5 +107,25 @@ public class Rigidbody2D {
     public void setRawTransform(Transform rawTransform) {
         this.rawTransform = rawTransform;
         this.position.set(rawTransform.position);
+    }
+
+    public boolean hasInfiniteMass() {
+        return this.mass == IMMOVABLE;
+    }
+
+    public Collider2D getCollider() {
+        return collider;
+    }
+
+    public void setCollider(Collider2D collider) {
+        this.collider = collider;
+    }
+
+    public float getCor() {
+        return cor;
+    }
+
+    public void setCor(float cor) {
+        this.cor = cor;
     }
 }

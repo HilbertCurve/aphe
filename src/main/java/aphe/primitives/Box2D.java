@@ -5,7 +5,7 @@ import org.joml.Vector3f;
 import aphe.rigidbody.Rigidbody2D;
 import aphe.util.MyMath;
 
-public class Box2D {
+public class Box2D extends Collider2D {
     private Vector2f size = new Vector2f();
     private Vector2f halfSize = new Vector2f();
     private Rigidbody2D rigidbody = null;
@@ -73,6 +73,10 @@ public class Box2D {
         }
 
         return vertices;
+    }
+
+    public Vector2f getSize() {
+        return size;
     }
 
     public void setSize(Vector2f size) {

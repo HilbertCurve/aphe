@@ -117,6 +117,7 @@ public class Window {
 
         System.out.println("OpenGL Version: " + glGetString(GL_VERSION));
 
+        DebugDraw.start();
         currentScene.start();
     }
 

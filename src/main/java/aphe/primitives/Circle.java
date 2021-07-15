@@ -4,7 +4,7 @@ import org.joml.Vector2f;
 import org.joml.Vector3f;
 import aphe.rigidbody.Rigidbody2D;
 
-public class Circle {
+public class Circle extends Collider2D {
     private float radius = 1.0f;
     private Rigidbody2D rigidbody = null;
     private Vector3f color;
@@ -53,6 +53,10 @@ public class Circle {
 
     public void setRigidbody(Rigidbody2D rb) {
         this.rigidbody = rb;
+    }
+
+    public Rigidbody2D getRigidbody() {
+        return rigidbody;
     }
 
     public int beginFrame() {
