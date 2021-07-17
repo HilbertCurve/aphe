@@ -4,54 +4,30 @@ import aphe.PhysicsSystem2D;
 import aphe.forces.Transform;
 import aphe.primitives.Box2D;
 import aphe.primitives.Circle;
+import aphe.primitives.Collider2D;
 import aphe.rigidbody.Rigidbody2D;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Scene {
     private Camera camera = new Camera(new Vector2f());
 
     PhysicsSystem2D physics = new PhysicsSystem2D(1.0f / 60.0f, new Vector2f(0f, -98f));
-    Transform obj1, obj2, floorPos;
-    Rigidbody2D rb1, rb2, floor;
+
+    List<Collider2D> thingsToDisplay = new ArrayList<>();
 
     public void start() {
         loadResources();
 
-        obj1 = new Transform(new Vector2f(200, 400));
-        obj2 = new Transform(new Vector2f(230, 200));
-        floorPos = new Transform(new Vector2f(-2f/Window.getHeight()));
-
-        rb1 = new Rigidbody2D();
-        rb2 = new Rigidbody2D();
-        floor = new Rigidbody2D();
-        rb1.setRawTransform(obj1);
-        rb2.setRawTransform(obj2);
-        floor.setRawTransform(floorPos);
-        rb1.setMass(100);
-        rb2.setMass(200);
-        floor.setMass(Rigidbody2D.IMMOVABLE);
-        rb1.setCor(2);
-
-        Circle c1 = new Circle();
-        c1.setRadius(25.0f);
-        c1.setRigidbody(rb1);
-
-        Circle c2 = new Circle();
-        c2.setRadius(50.0f);
-        c2.setRigidbody(rb2);
-
-        Box2D b = new Box2D();
-        b.setSize(new Vector2f(Window.getWidth(), 20));
-        b.setRigidbody(floor);
-
-        rb1.setCollider(c1);
-        rb2.setCollider(c2);
-        floor.setCollider(b);
-
-        physics.addRigidbody(rb1, true);
-        physics.addRigidbody(rb2, false);
-        physics.addRigidbody(floor, false);
+        addBox2D(new Vector2f(20, 40), new Vector2f(20, 40), 0, 20, false);
+        addBox2D(new Vector2f(30, 40), new Vector2f(20, 100), 0, 20, true);
+        for (int i = 0; i < 20; i++) {
+            addCircle(new Circle(new Vector2f(-149 + i, 100 + i * 200), 25), 25, true);
+        }
+        addCircle(new Circle(new Vector2f(-100, -100), 25), Rigidbody2D.IMMOVABLE, false);
 
         this.camera = new Camera(new Vector2f());
 
@@ -64,16 +40,65 @@ public class Scene {
     }
 
     public void update(float dt) {
-        DebugDraw.addCircle(obj1.position, 25.0f, new Vector3f(1.0f, 0.0f, 0.0f), 1);
-        DebugDraw.addCircle(obj2.position, 50.0f, new Vector3f(0.0f, 1.0f, 1.0f), 1);
-        DebugDraw.addBox2D(floor.getPosition(), ((Box2D) floor.getCollider()).getSize(), 0);
+        for (Collider2D c : thingsToDisplay) {
+            if (c instanceof Circle) {
+                DebugDraw.addCircle(((Circle) c).getCenter(), ((Circle) c).getRadius(), ((Circle) c).getRotation(), ((Circle) c).getColor(), 1);
+            } else if (c instanceof Box2D) {
+                DebugDraw.addBox2D(((Box2D) c).getPosition(), ((Box2D) c).getSize(), ((Box2D) c).getRotation());
+            }
+        }
 
-        physics.update(dt);
+        physics.fixedUpdate();
 
         camera.update();
     }
 
     public Camera getCamera() {
         return camera;
+    }
+
+    public void addCircle(Vector2f center, float radius, float mass, boolean addGravity) {
+        Circle c = new Circle(center, radius, new Vector3f(1.0f, 0.0f, 0.0f), 1);
+
+        Rigidbody2D rb = new Rigidbody2D();
+        rb.setRawTransform(new Transform(center));
+        rb.setMass(mass);
+
+        c.setRigidbody(rb);
+        rb.setCollider(c);
+
+        physics.addRigidbody(rb, addGravity);
+
+        thingsToDisplay.add(c);
+    }
+
+    public void addCircle(Circle c, float mass, boolean addGravity) {
+        Rigidbody2D rb = new Rigidbody2D(c.getCenter(), c.getRotation());
+        rb.setRawTransform(new Transform(c.getCenter()));
+        rb.setMass(mass);
+
+        c.setRigidbody(rb);
+        rb.setCollider(c);
+
+        physics.addRigidbody(rb, addGravity);
+
+        thingsToDisplay.add(c);
+    }
+
+    public void addBox2D(Vector2f size, Vector2f position, float rotation, float mass, boolean addGravity) {
+        Box2D b = new Box2D();
+        b.setSize(size);
+
+        Rigidbody2D rb = new Rigidbody2D();
+        rb.setRawTransform(new Transform(position));
+        rb.setMass(mass);
+        rb.setRotation(rotation);
+
+        b.setRigidbody(rb);
+        rb.setCollider(b);
+
+        physics.addRigidbody(rb, addGravity);
+
+        thingsToDisplay.add(b);
     }
 }

@@ -7,9 +7,13 @@ import org.joml.Vector2f;
 import aphe.forces.ForceRegistry;
 import aphe.forces.Gravity2D;
 import aphe.rigidbody.Rigidbody2D;
+import sandbox.DebugDraw;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static aphe.primitives.Collider2D.DEFAULT_COLOR;
+import static aphe.util.MyMath.RADIANS_TO_DEGREES;
 
 public class PhysicsSystem2D {
     private ForceRegistry forceRegistry;
@@ -115,6 +119,21 @@ public class PhysicsSystem2D {
                         .add(new Vector2f(impulse)
                                 .mul(invMass2))
         );
+
+        // find "average" contact point; this approximates where to apply angular momentum
+        Vector2f arm = new Vector2f();/*
+        for (Vector2f v : m.getContactPoints())
+            avgContactPoint.add(v);
+        avgContactPoint.div(m.getContactPoints().size());*/
+        arm = m.getContactPoints().get(0);
+
+        arm.sub(b.getPosition());
+        float torque = arm.x * impulse.y - arm.y * impulse.x;
+
+        a.setAngularVelocity(a.getAngularVelocity() + torque * invMass1);
+        b.setAngularVelocity(b.getAngularVelocity() - torque * invMass2);
+        DebugDraw.addLine2D(new Vector2f(0,0), arm, DEFAULT_COLOR, 20);
+        System.out.println(torque);
     }
 
     public void fixedUpdate() {

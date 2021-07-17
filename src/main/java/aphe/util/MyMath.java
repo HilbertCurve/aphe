@@ -1,5 +1,6 @@
 package aphe.util;
 
+import aphe.primitives.Line2D;
 import org.joml.Matrix2f;
 import org.joml.Vector2f;
 import aphe.primitives.Ray2D;
@@ -314,6 +315,40 @@ public final class MyMath {
         return new Vector2f(d1/d2, d3/d2);
     }
 
+    public static Vector2f intersectLines(Line2D l1, Line2D l2) {
+        Vector2f l1d = new Vector2f(l1.getStart()).sub(l1.getEnd());
+        Vector2f l1o = l1.getStart();
+        Vector2f l2d = new Vector2f(l2.getStart()).sub(l2.getEnd());
+        Vector2f l2o = l2.getStart();
+
+        float m1 = l1d.y / l1d.x;
+        float m2 = l2d.y / l2d.x;
+
+        if (m1 == Float.POSITIVE_INFINITY)
+            m1 = Float.MAX_VALUE;
+        if (m2 == Float.POSITIVE_INFINITY)
+            m2 = Float.MAX_VALUE;
+
+        float b1 = l1o.y - m1 * l1o.x;
+        float b2 = l2o.y - m2 * l2o.x;
+
+        /* CONSTRUCT CRAMER'S RULE MATRICES */
+        float d1 = new Matrix2f(
+                b1, 1,
+                b2, 1
+        ).determinant();
+        float d2 = new Matrix2f(
+                -m1, 1,
+                -m2, 1
+        ).determinant();
+        float d3 = new Matrix2f(
+                -m1, b1,
+                -m2, b2
+        ).determinant();
+
+        return new Vector2f(d1/d2, d3/d2);
+    }
+
     public static boolean compare(float a, float b, float epsilon) {
         return abs(a - b) <= epsilon * max(1.0f, max(abs(a), abs(b)));
     }
@@ -336,11 +371,11 @@ public final class MyMath {
 
     /**
      * Checks the sign of a number.
-     * @param x A signed number.
+     * @param a A signed number.
      * @return -1 if {@code x} is negative; +1 otherwise.
      */
-    public static int sign(double x) {
-        return x < 0 ? -1 : 1;
+    public static int sign(double a) {
+        return a < 0 ? -1 : 1;
     }
 
     /**

@@ -135,7 +135,7 @@ public class DebugDraw {
 
     static class CircleDraw {
         public static final int MAX_CIRCLES = 100;
-        private static final int CIRCLE_VERTEX_COUNT = 101;
+        private static final int CIRCLE_VERTEX_COUNT = 102;
 
         public static final List<Circle> circles = new ArrayList<>();
         // 6 floats per vertex, 101 vertices per circle
@@ -189,16 +189,20 @@ public class DebugDraw {
                 Vector2f center = circle.getCenter();
                 Vector3f color = circle.getColor();
 
+                rotate(center, position, circle.getRotation());
+
                 // Load position
                 index = loadVertex(index, position, new Vector4f(0.0f, 0.0f, 0.0f, 0.0f));
 
-                for (int i = 0; i < CIRCLE_VERTEX_COUNT-1; i++) {
+                for (int i = 0; i < CIRCLE_VERTEX_COUNT-2; i++) {
                     Vector2f v = new Vector2f(position);
 
-                    rotate(center, v, 360f * (i)/(CIRCLE_VERTEX_COUNT-2) + circle.getRotation());
+                    rotate(center, v, 360f * (i)/(CIRCLE_VERTEX_COUNT-3));
 
                     index = loadVertex(index, v, new Vector4f(color, 0.4f));
                 }
+
+                index = loadVertex(index, center, new Vector4f(0.0f, 0.0f, 0.0f, 0.4f));
             }
 
             glBindBuffer(GL_ARRAY_BUFFER, vboID);
@@ -391,13 +395,18 @@ public class DebugDraw {
     ////////////////////
     /* CIRCLE-METHODS */
     ////////////////////
-    public static void addCircle(Vector2f center, float radius, Vector3f color, int lifetime) {
+    public static void addCircle(Vector2f center, float radius, float rotation, Vector3f color, int lifetime) {
         if (CircleDraw.circles.size() >= CircleDraw.MAX_CIRCLES) return;
-        CircleDraw.circles.add(new Circle(center, radius, color, lifetime));
+        CircleDraw.circles.add(new Circle(center, radius, rotation, color, lifetime));
+    }
+
+    public static void addCircle(Circle circle) {
+        if (CircleDraw.circles.size() >= CircleDraw.MAX_CIRCLES) return;
+        CircleDraw.circles.add(circle);
     }
 
     public static void addCircle(Vector2f center, float radius, Vector3f color) {
-        addCircle(center, radius, color, 1);
+        addCircle(center, radius, 0, color, 1);
     }
 
     public static Circle getCircle(int index) {

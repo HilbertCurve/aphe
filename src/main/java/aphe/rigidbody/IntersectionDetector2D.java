@@ -2,6 +2,7 @@ package aphe.rigidbody;
 
 import org.joml.Vector2f;
 import aphe.primitives.*;
+import org.joml.Vector4f;
 
 import static aphe.util.MyMath.*;
 
@@ -303,12 +304,13 @@ public class IntersectionDetector2D {
     public static boolean circleAndBox2D(Circle circle, Box2D box) {
         Vector2f center = new Vector2f(circle.getCenter());
         Vector2f min = new Vector2f(0, 0);
-        Vector2f max = new Vector2f(box.getHalfSize()).mul(2.0f);
+        Vector2f max = new Vector2f(box.getHalfSize());
 
-        center.sub(box.getRigidbody().getPosition());
+        center.sub(box.getPosition());
 
         /* ROTATE EVERYTHING */
-        rotate(new Vector2f(), center, box.getRigidbody().getRotation());
+        rotate(new Vector2f(), center, -box.getRotation());
+
         center.add(box.getHalfSize());
 
         /* FIND CLOSEST POINT */
@@ -324,7 +326,7 @@ public class IntersectionDetector2D {
         else if (closestPointToCircle.y > max.y)
             closestPointToCircle.y = max.y;
 
-        return closestPointToCircle.distanceSquared(circle.getCenter()) <= circle.getRadius() * circle.getRadius();
+        return closestPointToCircle.distanceSquared(center) <= circle.getRadius() * circle.getRadius();
     }
 
     /* AABB-VS-PRIMITIVE TESTS */
@@ -424,7 +426,7 @@ public class IntersectionDetector2D {
         // vec.x, in this case, means the minimum of the interval. vec.y means the maximum.
     }
 
-    private static Vector2f getInterval(Box2D box, Vector2f axis) {
+    public static Vector2f getInterval(Box2D box, Vector2f axis) {
         Vector2f a = new Vector2f(axis).normalize();
 
         Vector2f[] vertices = box.getVertices();

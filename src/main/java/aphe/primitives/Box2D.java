@@ -10,7 +10,7 @@ public class Box2D extends Collider2D {
     private Vector2f halfSize = new Vector2f();
     private Rigidbody2D rigidbody = null;
     private Vector3f color = new Vector3f(0.0f, 0.0f, 0.0f);
-    private int lifetime;
+    private int lifetime; // TODO: remove me
     private Vector2f[] vertices = null;
 
     public Box2D() {
@@ -21,12 +21,14 @@ public class Box2D extends Collider2D {
         this.size = new Vector2f(max).sub(min);
         this.halfSize = new Vector2f(size.mul(0.5f));
         this.rigidbody = new Rigidbody2D(new Vector2f(min).add(halfSize));
+        rigidbody.setInertia(rigidbody.getMass() * (size.dot(size)) / 12);
     }
 
     public Box2D(Vector2f min, Vector2f max, Vector3f color) {
         this.size = new Vector2f(max).sub(min);
         this.halfSize = new Vector2f(size.mul(0.5f));
         this.rigidbody = new Rigidbody2D(new Vector2f(min).add(halfSize));
+        rigidbody.setInertia(rigidbody.getMass() * (size.dot(size)) / 12);
         this.color = color;
     }
 
@@ -34,6 +36,7 @@ public class Box2D extends Collider2D {
         this.size = new Vector2f(max).sub(min);
         this.halfSize = new Vector2f(size.mul(0.5f));
         this.rigidbody = new Rigidbody2D(new Vector2f(min).add(halfSize));
+        rigidbody.setInertia(rigidbody.getMass() * (size.dot(size)) / 12);
         this.color = color;
         this.lifetime = lifetime;
     }
@@ -42,6 +45,7 @@ public class Box2D extends Collider2D {
         this.size = new Vector2f(max).sub(min);
         this.halfSize = new Vector2f(size.mul(0.5f));
         this.rigidbody = new Rigidbody2D(new Vector2f(min).add(halfSize), rotation);
+        rigidbody.setInertia(rigidbody.getMass() * (size.dot(size)) / 12);
         this.color = color;
         this.lifetime = lifetime;
     }

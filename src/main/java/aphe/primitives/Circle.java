@@ -17,6 +17,7 @@ public class Circle extends Collider2D {
     public Circle(Vector2f center, float radius) {
         this.radius = radius;
         this.rigidbody = new Rigidbody2D(center);
+        this.color = DEFAULT_COLOR;
     }
 
     public Circle(Vector2f center, Vector2f point) {
@@ -27,6 +28,17 @@ public class Circle extends Collider2D {
     public Circle(Vector2f center, float radius, Vector3f color, int lifetime) {
         this.radius = radius;
         this.rigidbody = new Rigidbody2D(center);
+        this.color = color;
+        this.lifetime = lifetime;
+    }
+
+    public Circle(Vector2f center, float radius, Vector3f color) {
+        this(center, radius, color, 1);
+    }
+
+    public Circle(Vector2f center, float radius, float rotation, Vector3f color, int lifetime) {
+        this.radius = radius;
+        this.rigidbody = new Rigidbody2D(center, rotation);
         this.color = color;
         this.lifetime = lifetime;
     }

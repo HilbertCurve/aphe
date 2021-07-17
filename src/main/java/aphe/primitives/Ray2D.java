@@ -12,6 +12,12 @@ public class Ray2D {
         this.direction.normalize();
     }
 
+    public Ray2D(Line2D line, boolean startAtEnd) {
+        this.origin = startAtEnd ? line.getTo() : line.getFrom();
+        this.direction = startAtEnd ? new Vector2f(line.getTo()).sub(line.getFrom()) : new Vector2f(line.getFrom()).sub(line.getTo());
+        this.direction.normalize();
+    }
+
     public Vector2f getOrigin() {
         return origin;
     }
