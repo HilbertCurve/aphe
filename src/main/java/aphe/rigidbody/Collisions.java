@@ -76,23 +76,35 @@ public class Collisions {
         if (!circleAndBox2D(a, b))
             return result;
 
-        Vector2f rotatedPoint = new Vector2f(a.getCenter()).sub(0, a.getRadius());
-        rotate(a.getCenter(), rotatedPoint, b.getRotation());
+        Vector2f min = new Vector2f(b.getHalfSize()).negate();
+        Vector2f max = new Vector2f(b.getHalfSize());
 
-        /* FIND CLOSEST LINE TO CIRCLE CENTER */
-        Vector2f p1 = new Vector2f(b.getVertices()[0]);
-        Vector2f p2 = new Vector2f(b.getVertices()[0]);
-        for (Vector2f vert : b.getVertices()) {
-            if (vert.distanceSquared(a.getCenter()) < p1.distanceSquared(a.getCenter()))
-                p1 = new Vector2f(vert);
-            else if (vert.distanceSquared(a.getCenter()) < p2.distanceSquared(a.getCenter()))
-                p2 = new Vector2f(vert);
-        }
+        Vector2f center = new Vector2f(a.getCenter());
+        center.sub(b.getPosition());
 
-        Line2D l = new Line2D(p1, p2);
+        /* PUSH ROTATION */
+        rotate(b.getPosition(), center, -b.getRotation());
 
-        Vector2f closestPointToCircle = MyMath.intersectLines(l, new Line2D(a.getCenter(), rotatedPoint));
-        Vector2f normal = new Vector2f(rotatedPoint).sub(closestPointToCircle).normalize();
+        /* FIND CLOSEST POINT */
+        Vector2f closestPointToCircle = new Vector2f(center);
+
+        if (closestPointToCircle.x < min.x)
+            closestPointToCircle.x = min.x;
+        else if (closestPointToCircle.x > max.x)
+            closestPointToCircle.x = max.x;
+
+        if (closestPointToCircle.y < min.y)
+            closestPointToCircle.y = min.y;
+        else if (closestPointToCircle.y > max.y)
+            closestPointToCircle.y = max.y;
+
+        /* POP ROTATION */
+        rotate(new Vector2f(), closestPointToCircle, b.getRotation());
+        closestPointToCircle.add(b.getPosition());
+
+        Vector2f normal = new Vector2f(closestPointToCircle).sub(a.getCenter()).normalize();
+
+        Vector2f rotatedPoint = new Vector2f(normal).add(a.getCenter()).mul(a.getRadius());
 
         Rigidbody2D rba = a.getRigidbody();
         Rigidbody2D rbb = b.getRigidbody();

@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static aphe.primitives.Collider2D.DEFAULT_COLOR;
-import static aphe.util.MyMath.RADIANS_TO_DEGREES;
+import static aphe.rigidbody.IntersectionDetector2D.colliderAndCollider;
 
 public class PhysicsSystem2D {
     private ForceRegistry forceRegistry;
@@ -109,6 +109,10 @@ public class PhysicsSystem2D {
             j /= (float) m.getContactPoints().size(); //FIXME: distribute even more evenly across contact points.
 
         Vector2f impulse = new Vector2f(relativeNormal).mul(j);
+        if (impulse.lengthSquared() < 0.01f) {
+            b.setVelocity(a.getVelocity());
+            return;
+        }
         a.setVelocity(
                 new Vector2f(a.getVelocity())
                         .add(new Vector2f(impulse)
@@ -120,11 +124,8 @@ public class PhysicsSystem2D {
                                 .mul(invMass2))
         );
 
-        // find "average" contact point; this approximates where to apply angular momentum
-        Vector2f arm = new Vector2f();/*
-        for (Vector2f v : m.getContactPoints())
-            avgContactPoint.add(v);
-        avgContactPoint.div(m.getContactPoints().size());*/
+        /*// find "average" contact point; this approximates where to apply angular momentum
+        Vector2f arm = new Vector2f();
         arm = m.getContactPoints().get(0);
 
         arm.sub(b.getPosition());
@@ -133,7 +134,13 @@ public class PhysicsSystem2D {
         a.setAngularVelocity(a.getAngularVelocity() + torque * invMass1);
         b.setAngularVelocity(b.getAngularVelocity() - torque * invMass2);
         DebugDraw.addLine2D(new Vector2f(0,0), arm, DEFAULT_COLOR, 20);
-        System.out.println(torque);
+        System.out.println(torque);*/
+
+        // FIXME: stationary collisions are broken
+        if (colliderAndCollider(a.getCollider(), b.getCollider())) {
+//            a.getPosition().add(new Vector2f(m.getNormal()).mul(m.getDepth() / 2));
+//            b.getPosition().add(new Vector2f(m.getNormal()).mul(m.getDepth() / 2));
+        }
     }
 
     public void fixedUpdate() {

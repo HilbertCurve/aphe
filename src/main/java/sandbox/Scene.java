@@ -12,6 +12,8 @@ import org.joml.Vector3f;
 import java.util.ArrayList;
 import java.util.List;
 
+import static aphe.util.MyMath.normalcdf;
+
 public class Scene {
     private Camera camera = new Camera(new Vector2f());
 
@@ -22,12 +24,16 @@ public class Scene {
     public void start() {
         loadResources();
 
-        addBox2D(new Vector2f(20, 40), new Vector2f(20, 40), 0, 20, false);
-        addBox2D(new Vector2f(30, 40), new Vector2f(20, 100), 0, 20, true);
-        for (int i = 0; i < 20; i++) {
-            addCircle(new Circle(new Vector2f(-149 + i, 100 + i * 200), 25), 25, true);
-        }
-        addCircle(new Circle(new Vector2f(-100, -100), 25), Rigidbody2D.IMMOVABLE, false);
+        addCircle(new Circle(new Vector2f(-360, 45), 25, new Vector3f(1.0f, 0.0f, 0.0f)), 250, true);
+        addCircle(new Circle(new Vector2f(-300, 45), 25, new Vector3f(1.0f, 0.0f, 0.0f)), 250, true);
+        addCircle(new Circle(new Vector2f(-260, 45), 25, new Vector3f(1.0f, 0.0f, 0.0f)), 250, true);
+        addCircle(new Circle(new Vector2f(-160, 45), 25, new Vector3f(1.0f, 0.0f, 0.0f)), 250, true);
+        addCircle(new Circle(new Vector2f(-350, 100), 25, new Vector3f(0.0f, 0.0f, 0.0f)), 25, true);
+
+        addBox2D(new Vector2f(0, -300), new Vector2f(800, 20), 0, Rigidbody2D.IMMOVABLE, false);
+        addBox2D(new Vector2f(-400, 0), new Vector2f(20, 600), 0, Rigidbody2D.IMMOVABLE, false);
+        addBox2D(new Vector2f(0, 300), new Vector2f(800, 20), 0, Rigidbody2D.IMMOVABLE, false);
+        addBox2D(new Vector2f(400, 0), new Vector2f(20, 600), 0, Rigidbody2D.IMMOVABLE, false);
 
         this.camera = new Camera(new Vector2f());
 
@@ -58,7 +64,7 @@ public class Scene {
     }
 
     public void addCircle(Vector2f center, float radius, float mass, boolean addGravity) {
-        Circle c = new Circle(center, radius, new Vector3f(1.0f, 0.0f, 0.0f), 1);
+        Circle c = new Circle(center, radius, new Vector3f((float) normalcdf(mass, true), 0.0f, 0.0f), 1);
 
         Rigidbody2D rb = new Rigidbody2D();
         rb.setRawTransform(new Transform(center));
@@ -85,7 +91,7 @@ public class Scene {
         thingsToDisplay.add(c);
     }
 
-    public void addBox2D(Vector2f size, Vector2f position, float rotation, float mass, boolean addGravity) {
+    public void addBox2D(Vector2f position, Vector2f size, float rotation, float mass, boolean addGravity) {
         Box2D b = new Box2D();
         b.setSize(size);
 

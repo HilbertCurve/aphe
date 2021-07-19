@@ -19,12 +19,12 @@ public class Rigidbody2D {
     private float angularVelocity = 0.0f;
     private float linearDamping = 0.0f;
     private float angularDamping = 0.0f;
+    private boolean fixedRotation = true;
     // Coefficient of restitution
     private float cor = 1.0f;
     // to be implemented
     private float inertia = 0.0f;
 
-    private boolean fixedRotation = true;
     public static final float IMMOVABLE = 0.0f;
 
     public Rigidbody2D() {

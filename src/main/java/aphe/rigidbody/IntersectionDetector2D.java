@@ -2,11 +2,22 @@ package aphe.rigidbody;
 
 import org.joml.Vector2f;
 import aphe.primitives.*;
-import org.joml.Vector4f;
 
 import static aphe.util.MyMath.*;
 
 public class IntersectionDetector2D {
+    public static boolean colliderAndCollider(Collider2D c1, Collider2D c2) {
+        if (c1 instanceof Circle && c2 instanceof Circle) {
+            return circleAndCircle((Circle) c1, (Circle) c2);
+        } else if (c1 instanceof Circle && c2 instanceof Box2D) {
+            return circleAndBox2D((Circle) c1, (Box2D) c2);
+        } else if (c2 instanceof Circle && c1 instanceof Box2D) {
+            return circleAndBox2D((Circle) c2, (Box2D) c1);
+        }
+
+        return false;
+    }
+
     /* POINT-VS-PRIMITIVE TESTS */
     public static boolean pointOnLine(Vector2f point, Line2D line) {
         float dy = line.getEnd().y - line.getStart().y;
@@ -303,15 +314,13 @@ public class IntersectionDetector2D {
 
     public static boolean circleAndBox2D(Circle circle, Box2D box) {
         Vector2f center = new Vector2f(circle.getCenter());
-        Vector2f min = new Vector2f(0, 0);
+        Vector2f min = new Vector2f(box.getHalfSize()).negate();
         Vector2f max = new Vector2f(box.getHalfSize());
 
         center.sub(box.getPosition());
 
         /* ROTATE EVERYTHING */
         rotate(new Vector2f(), center, -box.getRotation());
-
-        center.add(box.getHalfSize());
 
         /* FIND CLOSEST POINT */
         Vector2f closestPointToCircle = new Vector2f(center);
