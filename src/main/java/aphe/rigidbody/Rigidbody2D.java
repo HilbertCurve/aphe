@@ -24,6 +24,7 @@ public class Rigidbody2D {
     private float cor = 1.0f;
     // to be implemented
     private float inertia = 0.0f;
+    private boolean atRest;
 
     public static final float IMMOVABLE = 0.0f;
 
@@ -156,5 +157,13 @@ public class Rigidbody2D {
 
     public void setInertia(float inertia) {
         this.inertia = inertia;
+    }
+
+    public boolean isAtRest() {
+        return this.atRest;
+    }
+
+    public void setAtRest(boolean atRest) {
+        this.atRest = atRest;
     }
 }

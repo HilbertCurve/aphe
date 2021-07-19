@@ -8,10 +8,12 @@ import aphe.primitives.Collider2D;
 import aphe.rigidbody.Rigidbody2D;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static aphe.primitives.Collider2D.DEFAULT_COLOR;
 import static aphe.util.MyMath.normalcdf;
 
 public class Scene {
@@ -24,11 +26,7 @@ public class Scene {
     public void start() {
         loadResources();
 
-        addCircle(new Circle(new Vector2f(-360, 45), 25, new Vector3f(1.0f, 0.0f, 0.0f)), 250, true);
-        addCircle(new Circle(new Vector2f(-300, 45), 25, new Vector3f(1.0f, 0.0f, 0.0f)), 250, true);
-        addCircle(new Circle(new Vector2f(-260, 45), 25, new Vector3f(1.0f, 0.0f, 0.0f)), 250, true);
-        addCircle(new Circle(new Vector2f(-160, 45), 25, new Vector3f(1.0f, 0.0f, 0.0f)), 250, true);
-        addCircle(new Circle(new Vector2f(-350, 100), 25, new Vector3f(0.0f, 0.0f, 0.0f)), 25, true);
+        addCircle(new Vector2f(50, 200), 25, 40, true);
 
         addBox2D(new Vector2f(0, -300), new Vector2f(800, 20), 0, Rigidbody2D.IMMOVABLE, false);
         addBox2D(new Vector2f(-400, 0), new Vector2f(20, 600), 0, Rigidbody2D.IMMOVABLE, false);
@@ -45,18 +43,37 @@ public class Scene {
         // textures to grab, we'd do it here.
     }
 
+    float accum = 2.0f;
     public void update(float dt) {
         for (Collider2D c : thingsToDisplay) {
             if (c instanceof Circle) {
-                DebugDraw.addCircle(((Circle) c).getCenter(), ((Circle) c).getRadius(), ((Circle) c).getRotation(), ((Circle) c).getColor(), 1);
+                Renderer.addCircle(((Circle) c).getCenter(), ((Circle) c).getRadius(), ((Circle) c).getRotation(), ((Circle) c).getColor(), 1);
             } else if (c instanceof Box2D) {
-                DebugDraw.addBox2D(((Box2D) c).getPosition(), ((Box2D) c).getSize(), ((Box2D) c).getRotation());
+                Renderer.addBox2D(((Box2D) c).getPosition(), ((Box2D) c).getSize(), ((Box2D) c).getRotation());
             }
+        }
+
+        // simple circle spawning script (not completed)
+        Vector2f pos = new Vector2f(MouseListener.getX(), MouseListener.getY());
+        pos.sub(Window.getWidth()/2f, Window.getHeight()/2f);
+        pos.mul(1f/Window.getWidth(), -1f/Window.getHeight());
+        pos.mul(32*40, 32*21);
+
+        if (MouseListener.mouseButtonDown(0) && accum >= 2.0f) {
+            accum = 0;
+            addCircle(pos, 25, 20, true);
+        } else if (MouseListener.mouseButtonDown(1) && accum >= 2.0f) {
+            accum = 0;
+            addCircle(pos, 25, Rigidbody2D.IMMOVABLE, false);
+        } else if (!MouseListener.mouseButtonDown(1) && !MouseListener.mouseButtonDown(0)) {
+            accum = 2.0f;
         }
 
         physics.fixedUpdate();
 
         camera.update();
+
+        accum += dt;
     }
 
     public Camera getCamera() {

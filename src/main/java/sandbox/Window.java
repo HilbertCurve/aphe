@@ -116,7 +116,7 @@ public class Window {
 
         System.out.println("OpenGL Version: " + glGetString(GL_VERSION));
 
-        DebugDraw.start();
+        Renderer.start();
         currentScene.start();
     }
 
@@ -132,11 +132,11 @@ public class Window {
             glClearColor(0.7f, 0.7f, 0.7f, 0);
             glClear(GL_COLOR_BUFFER_BIT);
 
-            DebugDraw.beginFrame();
+            Renderer.beginFrame();
 
             if (dt >= 0) {
                 currentScene.update(dt);
-                DebugDraw.draw();
+                Renderer.draw();
             }
 
             glfwSwapBuffers(glfwWindow);

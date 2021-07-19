@@ -7,13 +7,14 @@ import org.joml.Vector2f;
 import aphe.forces.ForceRegistry;
 import aphe.forces.Gravity2D;
 import aphe.rigidbody.Rigidbody2D;
-import sandbox.DebugDraw;
+import sandbox.Renderer;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static aphe.primitives.Collider2D.DEFAULT_COLOR;
 import static aphe.rigidbody.IntersectionDetector2D.colliderAndCollider;
+import static aphe.util.MyMath.compare;
 
 public class PhysicsSystem2D {
     private ForceRegistry forceRegistry;
@@ -87,6 +88,16 @@ public class PhysicsSystem2D {
         // Update the velocities of all rigidbodies
         for (Rigidbody2D rigidbody : rigidbodies)
             rigidbody.physicsUpdate(dt);
+
+        // Post-process, in case updating velocities messes something up.
+        for (int i = 0; i < collisions.size(); i++) {
+            int jSize = collisions.get(i).getContactPoints().size();
+            for (int j = 0; j < jSize; j++) {
+                Rigidbody2D r1 = bodies1.get(i);
+                Rigidbody2D r2 = bodies2.get(i);
+                afterImpulse(r1, r2, collisions.get(i));
+            }
+        }
     }
 
     private void applyImpulse(Rigidbody2D a, Rigidbody2D b, CollisionManifold m) {
@@ -98,7 +109,7 @@ public class PhysicsSystem2D {
 
         // Relative velocity
         Vector2f relativeVel = new Vector2f(b.getVelocity()).sub(a.getVelocity());
-        Vector2f relativeNormal = new Vector2f(m.getNormal()).normalize();
+        Vector2f relativeNormal = new Vector2f(m.getNormal());
         // Moving away from each other? Do nothing
         if (relativeVel.dot(relativeNormal) > 0.0f) return;
 
@@ -109,10 +120,6 @@ public class PhysicsSystem2D {
             j /= (float) m.getContactPoints().size(); //FIXME: distribute even more evenly across contact points.
 
         Vector2f impulse = new Vector2f(relativeNormal).mul(j);
-        if (impulse.lengthSquared() < 0.01f) {
-            b.setVelocity(a.getVelocity());
-            return;
-        }
         a.setVelocity(
                 new Vector2f(a.getVelocity())
                         .add(new Vector2f(impulse)
@@ -133,13 +140,13 @@ public class PhysicsSystem2D {
 
         a.setAngularVelocity(a.getAngularVelocity() + torque * invMass1);
         b.setAngularVelocity(b.getAngularVelocity() - torque * invMass2);
-        DebugDraw.addLine2D(new Vector2f(0,0), arm, DEFAULT_COLOR, 20);
+        Renderer.addLine2D(new Vector2f(0,0), arm, DEFAULT_COLOR, 20);
         System.out.println(torque);*/
+    }
 
-        // FIXME: stationary collisions are broken
+    private void afterImpulse(Rigidbody2D a, Rigidbody2D b, CollisionManifold m) {
         if (colliderAndCollider(a.getCollider(), b.getCollider())) {
-//            a.getPosition().add(new Vector2f(m.getNormal()).mul(m.getDepth() / 2));
-//            b.getPosition().add(new Vector2f(m.getNormal()).mul(m.getDepth() / 2));
+            Collisions.clip(a, b, m);
         }
     }
 

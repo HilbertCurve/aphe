@@ -8,7 +8,8 @@ import java.util.List;
 public class CollisionManifold {
     private final Vector2f normal;
     private final List<Vector2f> contactPoints;
-    private final float depth;
+    private float depth;
+    private float penetrationConst;
     private boolean isColliding;
 
     public CollisionManifold() {
@@ -18,10 +19,11 @@ public class CollisionManifold {
         isColliding = false;
     }
 
-    public CollisionManifold(Vector2f normal, float depth) {
+    public CollisionManifold(Vector2f normal, float depth, float penetrationConst) {
         this.normal = normal;
         this.contactPoints = new ArrayList<>();
         this.depth = depth;
+        this.penetrationConst = penetrationConst;
         isColliding = true;
     }
 
@@ -39,6 +41,14 @@ public class CollisionManifold {
 
     public float getDepth() {
         return depth;
+    }
+
+    public void setDepth(float depth) {
+        this.depth = depth;
+    }
+
+    public float getPenetrationConst() {
+        return penetrationConst;
     }
 
     public boolean isColliding() {

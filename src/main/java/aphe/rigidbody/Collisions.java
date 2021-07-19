@@ -1,7 +1,6 @@
 package aphe.rigidbody;
 
 import aphe.primitives.*;
-import aphe.util.MyMath;
 import org.joml.Matrix2f;
 import org.joml.Vector2f;
 import java.lang.Math;
@@ -16,7 +15,7 @@ public class Collisions {
         } else if (c1 instanceof Circle && c2 instanceof Box2D) {
             return findCollisionFeatures((Circle) c1, (Box2D) c2);
         } else if (c1 instanceof Box2D && c2 instanceof Circle) {
-            return findCollisionFeatures((Circle) c2, (Box2D) c1);
+            return findCollisionFeatures((Box2D) c1, (Circle) c2);
         } else if (c1 instanceof Box2D && c2 instanceof Box2D) {
             return findCollisionFeatures((Box2D) c1, (Box2D) c2);
         } else {
@@ -65,12 +64,11 @@ public class Collisions {
         Vector2f contactPoint = new Vector2f(a.getCenter())
                 .add(new Vector2f(normal).mul(distanceToPoint));
 
-        result = new CollisionManifold(normal, depth);
+        result = new CollisionManifold(normal, depth, penetrationConst);
         result.addContactPoint(contactPoint);
         return result;
     }
 
-    // FIXME
     public static CollisionManifold findCollisionFeatures(Circle a, Box2D b) {
         CollisionManifold result = new CollisionManifold();
         if (!circleAndBox2D(a, b))
@@ -83,7 +81,7 @@ public class Collisions {
         center.sub(b.getPosition());
 
         /* PUSH ROTATION */
-        rotate(b.getPosition(), center, -b.getRotation());
+        rotate(new Vector2f(), center, b.getRotation());
 
         /* FIND CLOSEST POINT */
         Vector2f closestPointToCircle = new Vector2f(center);
@@ -99,12 +97,13 @@ public class Collisions {
             closestPointToCircle.y = max.y;
 
         /* POP ROTATION */
-        rotate(new Vector2f(), closestPointToCircle, b.getRotation());
+        rotate(new Vector2f(), closestPointToCircle, -b.getRotation());
         closestPointToCircle.add(b.getPosition());
 
         Vector2f normal = new Vector2f(closestPointToCircle).sub(a.getCenter()).normalize();
 
-        Vector2f rotatedPoint = new Vector2f(normal).add(a.getCenter()).mul(a.getRadius());
+        Vector2f rotatedPoint = new Vector2f(normal).mul(a.getRadius()).add(a.getCenter());
+
 
         Rigidbody2D rba = a.getRigidbody();
         Rigidbody2D rbb = b.getRigidbody();
@@ -121,9 +120,15 @@ public class Collisions {
         Vector2f contactPoint = new Vector2f(a.getCenter())
                 .add(new Vector2f(normal).mul(distanceToPoint));
 
-        result = new CollisionManifold(normal, depth);
+        result = new CollisionManifold(normal, depth, penetrationConst);
         result.addContactPoint(contactPoint);
         return result;
+    }
+
+    public static CollisionManifold findCollisionFeatures(Box2D b, Circle c) {
+        CollisionManifold m = findCollisionFeatures(c, b);
+        m.getNormal().negate();
+        return m;
     }
 
     private static final int FACE_1_X = 0;
@@ -279,7 +284,7 @@ public class Collisions {
             }
         }
 
-        result = new CollisionManifold(frontNormal.normalize(), s);
+        result = new CollisionManifold(frontNormal.normalize(), s, 0);
         return result;
     }
 
@@ -367,5 +372,16 @@ public class Collisions {
         }
 
         return numOut;
+    }
+
+    public static void clip(Rigidbody2D a, Rigidbody2D b, CollisionManifold m) {
+        if (b.hasInfiniteMass()) {
+            a.getPosition().add(new Vector2f(m.getNormal()).mul(m.getDepth()).negate());
+        } else if (a.hasInfiniteMass()) {
+            b.getPosition().add(new Vector2f(m.getNormal()).mul(m.getDepth()));
+        } else {
+            a.getPosition().add(new Vector2f(m.getNormal()).mul(-m.getDepth()*(1-m.getPenetrationConst())));
+            b.getPosition().add(new Vector2f(m.getNormal()).mul(m.getDepth()*(m.getPenetrationConst())));
+        }
     }
 }

@@ -1,5 +1,6 @@
 package sandbox;
 
+import aphe.primitives.Collider2D;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
@@ -20,15 +21,15 @@ import static aphe.util.MyMath.rotate;
 /**
  * Wrapper over all debug/physics-related draw calls.
  */
-public class DebugDraw {
-    static class BoxDraw {
+public class Renderer {
+    static class BoxRenderer {
         public static final int MAX_BOXES = 250;
         private static final int BOX_VERTEX_COUNT = 6;
 
         public static final List<Box2D> boxes = new ArrayList<>();
         // 6 floats per vertex, 4 vertices per box
         private static final float[] vertexArray = new float[MAX_BOXES * 6 * BOX_VERTEX_COUNT];
-        private static Shader shader = AssetPool.getShader("assets/sandbox/shaders/default.glsl");
+        private static final Shader shader = AssetPool.getShader("assets/sandbox/shaders/default.glsl");
 
         private static int vaoID;
         private static int vboID;
@@ -133,7 +134,7 @@ public class DebugDraw {
         }
     }
 
-    static class CircleDraw {
+    static class CircleRenderer {
         public static final int MAX_CIRCLES = 100;
         private static final int CIRCLE_VERTEX_COUNT = 102;
 
@@ -247,13 +248,13 @@ public class DebugDraw {
         }
     }
 
-    static class LineDraw {
+    static class LineRenderer {
         public static final int MAX_LINES = 500;
 
         public static final List<Line2D> lines = new ArrayList<>();
         // 6 floats per vertex, 2 vertices per line
         private static final float[] vertexArray = new float[MAX_LINES * 6 * 2];
-        private static Shader shader = AssetPool.getShader("assets/sandbox/shaders/default.glsl");
+        private static final Shader shader = AssetPool.getShader("assets/sandbox/shaders/default.glsl");
 
         private static int vaoID;
         private static int vboID;
@@ -345,29 +346,29 @@ public class DebugDraw {
     }
 
     public static void start() {
-        BoxDraw.start();
-        CircleDraw.start();
-        LineDraw.start();
+        BoxRenderer.start();
+        CircleRenderer.start();
+        LineRenderer.start();
     }
 
     public static void beginFrame() {
-        BoxDraw.beginFrame();
-        CircleDraw.beginFrame();
-        LineDraw.beginFrame();
+        BoxRenderer.beginFrame();
+        CircleRenderer.beginFrame();
+        LineRenderer.beginFrame();
     }
 
     public static void draw() {
-        BoxDraw.draw();
-        CircleDraw.draw();
-        LineDraw.draw();
+        BoxRenderer.draw();
+        CircleRenderer.draw();
+        LineRenderer.draw();
     }
 
     ///////////////////
     /* BOX2D-METHODS */
     ///////////////////
     public static void addBox2D(Box2D box2D) {
-        if (BoxDraw.boxes.size() + 1 <= BoxDraw.MAX_BOXES)
-            BoxDraw.boxes.add(box2D);
+        if (BoxRenderer.boxes.size() + 1 <= BoxRenderer.MAX_BOXES)
+            BoxRenderer.boxes.add(box2D);
     }
 
     public static void addBox2D(Vector2f center, Vector2f dimensions, float rotation) {
@@ -375,7 +376,7 @@ public class DebugDraw {
                 new Vector2f(center).sub(new Vector2f(dimensions).div(2)),
                 new Vector2f(center).add(new Vector2f(dimensions).div(2)),
                 rotation,
-                new Vector3f(0.0f, 0.0f, 0.0f),
+                new Vector3f(Collider2D.DEFAULT_COLOR),
                 1
         ));
     }
@@ -389,20 +390,20 @@ public class DebugDraw {
     }
 
     public static Box2D getBox2D(int index) {
-        return BoxDraw.boxes.get(index);
+        return BoxRenderer.boxes.get(index);
     }
 
     ////////////////////
     /* CIRCLE-METHODS */
     ////////////////////
     public static void addCircle(Vector2f center, float radius, float rotation, Vector3f color, int lifetime) {
-        if (CircleDraw.circles.size() >= CircleDraw.MAX_CIRCLES) return;
-        CircleDraw.circles.add(new Circle(center, radius, rotation, color, lifetime));
+        if (CircleRenderer.circles.size() >= CircleRenderer.MAX_CIRCLES) return;
+        CircleRenderer.circles.add(new Circle(center, radius, rotation, color, lifetime));
     }
 
     public static void addCircle(Circle circle) {
-        if (CircleDraw.circles.size() >= CircleDraw.MAX_CIRCLES) return;
-        CircleDraw.circles.add(circle);
+        if (CircleRenderer.circles.size() >= CircleRenderer.MAX_CIRCLES) return;
+        CircleRenderer.circles.add(circle);
     }
 
     public static void addCircle(Vector2f center, float radius, Vector3f color) {
@@ -410,7 +411,7 @@ public class DebugDraw {
     }
 
     public static Circle getCircle(int index) {
-        return CircleDraw.circles.get(index);
+        return CircleRenderer.circles.get(index);
     }
 
     ////////////////////
@@ -421,16 +422,15 @@ public class DebugDraw {
     }
 
     public static void addLine2D(Vector2f from, Vector2f to) {
-        // TODO: ADD CONSTANTS FOR COMMON COLORS
-        addLine2D(from, to, new Vector3f(0, 1, 0), 1);
+        addLine2D(from, to, new Vector3f(Collider2D.DEFAULT_COLOR), 1);
     }
 
     public static void addLine2D(Vector2f from, Vector2f to, Vector3f color, int lifetime) {
-        if (LineDraw.lines.size() >= LineDraw.MAX_LINES) return;
-        LineDraw.lines.add(new Line2D(from, to, color, lifetime));
+        if (LineRenderer.lines.size() >= LineRenderer.MAX_LINES) return;
+        LineRenderer.lines.add(new Line2D(from, to, color, lifetime));
     }
 
     public static Line2D getLine2D(int index) {
-        return LineDraw.lines.get(index);
+        return LineRenderer.lines.get(index);
     }
 }
